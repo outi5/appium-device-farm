@@ -255,7 +255,6 @@ class DeviceConnectionsFactory {
   }
 
   async releaseConnection(udid: any, port?: any) {
-    const isPortBusy = (await checkPortStatus(port, LOCALHOST)) === 'open';
     if (!udid && !port) {
       log.warn(
         'Neither device UDID nor local port is set. ' +
@@ -275,7 +274,10 @@ class DeviceConnectionsFactory {
     for (const key of keys) {
       delete this._connectionsMapping[key];
     }
-    await this.waitForPortTobeReleased(port, isPortBusy);
+    if (port) {
+      const isPortBusy = (await checkPortStatus(port, LOCALHOST)) === 'open';
+      await this.waitForPortTobeReleased(port, isPortBusy);
+    }
     log.debug(`Cached connections count: ${_.size(this._connectionsMapping)}`);
   }
 }
